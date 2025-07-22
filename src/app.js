@@ -2,24 +2,20 @@ const express = require("express");
 
 const app = express();
 
-// this will match hndle GET call to /user
-app.get("/user", (req, res) => {
-    res.send({firstName: "Shah", lastName: "Mohd"});
-});
-
-app.post("/user", (req, res) => {
-    // saving data to DB
-    res.send("data successfully saved to the database");
-});
-
-app.delete("/user", (req, res) => {
-    res.send("deleted successfully");
-});
-
-// this will match all the http API calls to /test
-app.use("/test", (req, res) => {
-    res.send("test from the server");
-});
+// we can use multiple handler, with the help if next()
+app.use("/user", (req, res, next) => {
+    console.log("route handler 1");
+    next();
+},
+(req, res, next) => {
+    console.log("route handler 2");
+    next();
+},
+(req, res, next) => {
+    console.log("route handler 3");
+    res.send("Response 3");
+}
+);
 
 
 app.listen("7777", () => {
