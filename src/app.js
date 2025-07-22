@@ -1,21 +1,31 @@
 const express = require("express");
+const {adminAuth, userAuth} = require("./middlewares/auth");
 
 const app = express();
 
-// we can use multiple handler, with the help if next()
-app.use("/user", (req, res, next) => {
-    console.log("route handler 1");
-    next();
-},
-(req, res, next) => {
-    console.log("route handler 2");
-    next();
-},
-(req, res, next) => {
-    console.log("route handler 3");
-    res.send("Response 3");
-}
-);
+app.use("/admin", adminAuth);
+
+app.post("/user/login", (req, res) => {
+    res.send("login user");
+});
+
+app.use("/user", userAuth);
+
+app.get("/user/data", (req, res) => {
+    res.send("user data");
+});
+
+app.get("/user/profile", (req, res) => {
+    res.send("profile data");
+});
+
+app.get("/admin/getAllUsers", (req, res) => {
+    res.send("All data sent!");
+});
+
+app.get("/admin/deleteUser", (req, res) => {
+    res.send("Deleted a user!");
+});
 
 
 app.listen("7777", () => {
