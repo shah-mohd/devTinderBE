@@ -1,44 +1,38 @@
 const express = require("express");
-const {adminAuth, userAuth} = require("./middlewares/auth");
-
+const connectDB = require("./config/database");
+const User = require("./models/user");
 const app = express();
 
-// app.use("/admin", adminAuth);
+app.post("/signup", async (req, res) => {
+    // creating a new instanceof the user model
+    const user = new User({
+        firstName: "Shahrukh",
+        lastName: "Khan",
+        emailId: "shahrukh@gmail.com",
+        password: "Shahruk@123"
+    });
 
-// app.post("/user/login", (req, res) => {
-//     res.send("login user");
-// });
-
-// app.use("/user", userAuth);
-
-// app.get("/user/data", (req, res) => {
-//     res.send("user data");
-// });
-
-// app.get("/user/profile", (req, res) => {
-//     res.send("profile data");
-// });
-
-// app.get("/admin/getAllUsers", (req, res) => {
-//     res.send("All data sent!");
-// });
-
-// app.get("/admin/deleteUser", (req, res) => {
-//     res.send("Deleted a user!");
-// });
-
-
-app.use("/", (req, res) => {
-    throw new Error("there are error!");
-});
-
-app.use("/", (err, req, res, next) => {
-    if(err){
-        res.status(500).send("error from err");
+    try{
+        await user.save();
+        res.send("User added successfully!");
+    } catch(err){
+        res.status(400).send("Error saving the user: " + err.message);
     }
+    
 });
 
 
-app.listen("7777", () => {
-    console.log("Server successfully started...");
-})
+
+connectDB()
+    .then(() => {
+        console.log("Database connection established...!")
+        app.listen("7777", () => {
+            console.log("Server successfully started...");
+        });
+    })
+    .catch((err) => {
+        console.error("Database connection is not established...!")
+    });
+
+
+
