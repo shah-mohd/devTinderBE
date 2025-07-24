@@ -59,6 +59,7 @@ app.delete("/user", async (req, res) => {
     console.log(userId);
     try{
         const user = await User.findByIdAndDelete({_id: userId});
+        // console.log(user);
         res.send("User deleted successfully!");
     } catch(err){
         res.status(404).send("Something went wrong!");
@@ -71,10 +72,10 @@ app.delete("/user", async (req, res) => {
 //     const data = req.body;
 
 //     try{
-//         await User.findByIdAndUpdate({_id: userId}, data);
+//         await User.findByIdAndUpdate({_id: userId}, data, {runValidators: true});
 //         res.send("User updated successflly");
 //     } catch(err){
-//         res.status(404).send("Something went wrong!");
+//         res.status(404).send("Update failed! " + err.message);
 //     }
 // });
 
@@ -84,10 +85,10 @@ app.patch("/user", async (req, res) => {
     const data = req.body;
 
     try{
-        await User.findOneAndUpdate({emailId: emailId}, data);
+        await User.findOneAndUpdate({emailId: emailId}, data, {runValidators:true});
         res.send("User updated successflly");
     } catch(err){
-        res.status(404).send("Something went wrong!");
+        res.status(404).send("Update failed! " + err.message);
     }
 });
 
