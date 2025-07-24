@@ -14,8 +14,43 @@ app.post("/signup", async (req, res) => {
         res.send("User added successfully!");
     } catch(err){
         res.status(400).send("Error saving the user: " + err.message);
+    }    
+});
+
+// get user by email
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.emailId;
+
+    try{
+        const users = await User.findOne({emailId: userEmail});
+        if(!users){
+           res.status(404).send("User not found!"); 
+        } else {
+            res.send(users);
+        }
+        
+    // try{
+    //     const users = await User.find({emailId: userEmail});
+    //     if(users.length === 0){
+    //         res.status(404).send("User not found!");
+    //     } else {
+    //         res.send(users);
+    //     }
+        
+    } catch(err){
+        res.status(400).send("Something went wrong!")
     }
     
+});
+
+// Feed API - GET /feed - get all the users from the database
+app.get("/feed", async (req, res) => {
+    try{
+        const users = await User.find({});
+        res.send(users);
+    } catch(err) {
+        res.status(404).send("Something went wrong!");
+    }   
 });
 
 
