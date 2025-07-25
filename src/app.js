@@ -5,6 +5,7 @@ const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth");
 
 const app = express();
 
@@ -47,10 +48,10 @@ app.post("/login", async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if(isPasswordValid){
             // create JWT token
-            const token = await jwt.sign({_id: user._id}, "DEV@Tender$790");
+            const token = await jwt.sign({_id: user._id}, "DEV@Tender$790", {expiresIn: "7d"});
 
             // add the token to cookie and send the response back to the user
-            res.cookie("token", token);
+            res.cookie("token", token, {expires: new Date(Date.now() + 178 * 3600000)});
             res.send("Login successfully!");
         } else {
             throw new Error("Invalid credential!");
@@ -62,22 +63,9 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
     try{
-        const cookies = req.cookies;
-        const {token} = cookies;
-        if(!token){
-            throw new Error("Invalid token!");
-        }
-
-        // validate my cookies
-        const decodeMessage = await jwt.verify(token, "DEV@Tender$790");
-        const {_id} = decodeMessage;
-
-        const user = await User.findById(_id);
-        if(!user){
-            throw new Error("User does not exits!");
-        }
+        const user = req.user;
         res.send(user);
     } catch(err){
         res.status(400).send("ERROR : " + err.message);
@@ -85,98 +73,10 @@ app.get("/profile", async (req, res) => {
     
 });
 
-// get user by email
-app.get("/user", async (req, res) => {
-    const userEmail = req.body.emailId;
-
-    try{
-        const users = await User.findOne({emailId: userEmail});
-        if(!users){
-           res.status(404).send("User not found!"); 
-        } else {
-            res.send(users);
-        }
-        
-    // try{
-    //     const users = await User.find({emailId: userEmail});
-    //     if(users.length === 0){
-    //         res.status(404).send("User not found!");
-    //     } else {
-    //         res.send(users);
-    //     }
-        
-    } catch(err){
-        res.status(400).send("Something went wrong!")
-    }
-    
-});
-
-// Feed API - GET /feed - get all the users from the database
-app.get("/feed", async (req, res) => {
-    try{
-        const users = await User.find({});
-        res.send(users);
-    } catch(err) {
-        res.status(404).send("Something went wrong!");
-    }   
-});
-
-// delete a user from the database
-app.delete("/user", async (req, res) => {
-    const userId = req.body.userId;
-    console.log(userId);
-    try{
-        const user = await User.findByIdAndDelete({_id: userId});
-        // console.log(user);
-        res.send("User deleted successfully!");
-    } catch(err){
-        res.status(404).send("Something went wrong!");
-    }
-});
-
-// update data of the user
-app.patch("/user/:userId", async (req, res) => {
-    const userId = req.params.userId;
-    const data = req.body;
-
-    try{
-        const ALLOWED_UPDATES = [
-            "photoUrl",
-            "about",
-            "gender",
-            "age",
-            "skills"
-        ];
-
-        const isUpdateAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
-
-        if(!isUpdateAllowed){
-            throw new Error("Update not allowed!");
-        }
-
-        if(data?.skills.length > 10){
-            throw new Error("Skills cannot be more than 10!");
-        }
-        
-        await User.findByIdAndUpdate({_id: userId}, data, {runValidators: true});
-        res.send("User updated successflly");
-    } catch(err){
-        res.status(404).send("Update failed! " + err.message);
-    }
-});
-
-// update data of the user by emailId
-// app.patch("/user", async (req, res) => {
-//     const emailId = req.body.emailId;
-//     const data = req.body;
-
-//     try{
-//         await User.findOneAndUpdate({emailId: emailId}, data, {runValidators:true});
-//         res.send("User updated successflly");
-//     } catch(err){
-//         res.status(404).send("Update failed! " + err.message);
-//     }
-// });
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+    const user = req.user;
+    res.send(user.firstName + " sent the connection request!");
+})
 
 
 connectDB()
