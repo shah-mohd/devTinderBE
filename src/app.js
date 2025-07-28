@@ -16,23 +16,15 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 
 
-
-
-
-
-
-
-
-
 connectDB()
     .then(() => {
-        console.log("Database connection established...!")
+        console.log("Database connection established...!");
         app.listen("7777", () => {
             console.log("Server successfully started...");
         });
     })
     .catch((err) => {
-        console.error("Database connection is not established...!")
+        console.error("Database connection is not established...! " + err.message);
     });
 
 
