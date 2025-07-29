@@ -1,9 +1,11 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
+const cros = require("cors");
 
 const app = express();
 
+app.use(cros());
 app.use(express.json());
 app.use(cookieParser());
 
