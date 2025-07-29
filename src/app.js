@@ -5,7 +5,10 @@ const cros = require("cors");
 
 const app = express();
 
-app.use(cros());
+app.use(cros({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
